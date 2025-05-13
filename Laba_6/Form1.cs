@@ -1,101 +1,176 @@
-using static Laba_6.Emitter;
-using static Laba_6.Particle;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Laba_6
 {
     public partial class Form1 : Form
     {
-        List<Emitter> emitters = new List<Emitter>();
-        Emitter emitter; // добавим поле для эмиттера
-
-        GravityPoint point1; // добавил поле под первую точку
-        GravityPoint point2; // добавил поле под вторую точку
+        TopEmitter emitter;
+        List<ColorPoint> colorPoints = new List<ColorPoint>();
 
         public Form1()
         {
             InitializeComponent();
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
 
-            this.emitter = new Emitter
+            emitter = new TopEmitter
             {
-                Direction = 0,
-                Spreading = 10,
-                SpeedMin = 10,
-                SpeedMax = 10,
-                ColorFrom = Color.Gold,
-                ColorTo = Color.FromArgb(0, Color.Red),
-                ParticlesPerTick = 10,
-                X = picDisplay.Width / 2,
-                Y = picDisplay.Height / 2,
-                GravitationY = 0.5f // добавляем гравитацию вниз
+                Width = picDisplay.Width,
+                X = Particle.rand.Next(picDisplay.Width),
+                Y = 0,
+                ParticlesCount = 500
             };
 
-            emitters.Add(this.emitter);
+            // Создаем цветные точки и добавляем их и в emitter, и в colorPoints
+            colorPoints.Add(new ColorPoint { X = 70, Y = 120, Color = Color.Red });
+            colorPoints.Add(new ColorPoint { X = 120, Y = 160, Color = Color.Orange });
+            colorPoints.Add(new ColorPoint { X = 180, Y = 180, Color = Color.Yellow });
+            colorPoints.Add(new ColorPoint { X = 242, Y = 190, Color = Color.Lime });
+            colorPoints.Add(new ColorPoint { X = 304, Y = 180, Color = Color.Cyan });
+            colorPoints.Add(new ColorPoint { X = 365, Y = 160, Color = Color.Blue });
+            colorPoints.Add(new ColorPoint { X = 414, Y = 120, Color = Color.Violet });
 
-            point1 = new GravityPoint
+            foreach (var point in colorPoints)
             {
-                X = picDisplay.Width / 2 + 100,
-                Y = picDisplay.Height / 2,
-                Power = 100 // можно задать начальное значение
-            };
-            point2 = new GravityPoint
-            {
-                X = picDisplay.Width / 2 - 100,
-                Y = picDisplay.Height / 2,
-                Power = 100
-            };
+                emitter.impactPoints.Add(point);
+            }
 
-            emitter.impactPoints.Add(point1);
-            emitter.impactPoints.Add(point2);
+            timer1.Interval = 20;
+            timer1.Start();
+
+            // Установка начальных значений для трекбаров
+            tbPoint1X.Value = (int)colorPoints[0].X;
+            tbPoint1Y.Value = (int)colorPoints[0].Y;
+
+            tbPoint2X.Value = (int)colorPoints[1].X;
+            tbPoint2Y.Value = (int)colorPoints[1].Y;
+
+            tbPoint3X.Value = (int)colorPoints[2].X;
+            tbPoint3Y.Value = (int)colorPoints[2].Y;
+
+            tbPoint4X.Value = (int)colorPoints[3].X;
+            tbPoint4Y.Value = (int)colorPoints[3].Y;
+
+            tbPoint5X.Value = (int)colorPoints[4].X;
+            tbPoint5Y.Value = (int)colorPoints[4].Y;
+
+            tbPoint6X.Value = (int)colorPoints[5].X;
+            tbPoint6Y.Value = (int)colorPoints[5].Y;
+
+            tbPoint7X.Value = (int)colorPoints[6].X;
+            tbPoint7Y.Value = (int)colorPoints[6].Y;
         }
 
 
-        private void picDisplay_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        // ну и обработка тика таймера, тут просто декомпозицию выполнили
         private void timer1_Tick(object sender, EventArgs e)
         {
-            emitter.UpdateState(); // тут теперь обновляем эмиттер
+            // Обновляем координаты всех точек по значениям трекбаров
+            colorPoints[0].X = tbPoint1X.Value;
+            colorPoints[0].Y = tbPoint1Y.Value;
 
+            colorPoints[1].X = tbPoint2X.Value;
+            colorPoints[1].Y = tbPoint2Y.Value;
+
+            colorPoints[2].X = tbPoint3X.Value;
+            colorPoints[2].Y = tbPoint3Y.Value;
+
+            colorPoints[3].X = tbPoint4X.Value;
+            colorPoints[3].Y = tbPoint4Y.Value;
+
+            colorPoints[4].X = tbPoint5X.Value;
+            colorPoints[4].Y = tbPoint5Y.Value;
+
+            colorPoints[5].X = tbPoint6X.Value;
+            colorPoints[5].Y = tbPoint6Y.Value;
+
+            colorPoints[6].X = tbPoint7X.Value;
+            colorPoints[6].Y = tbPoint7Y.Value;
+
+            emitter.UpdateState();
             using (var g = Graphics.FromImage(picDisplay.Image))
             {
                 g.Clear(Color.Black);
-                emitter.Render(g); // а тут теперь рендерим через эмиттер
+                emitter.Render(g);
             }
 
+            int x1 = tbPoint1X.Value;
+            int y1 = tbPoint1Y.Value;
             picDisplay.Invalidate();
         }
-        private void picDisplay_MouseMove(object sender, MouseEventArgs e)
-        {
-            // это не трогаем
-            foreach (var emitter in emitters)
-            {
-                emitter.MousePositionX = e.X;
-                emitter.MousePositionY = e.Y;
-            }
 
-            // а тут передаем положение мыши, в положение гравитона
-            point2.X = e.X;
-            point2.Y = e.Y;
+        private void tbPoint1X_Scroll(object sender, EventArgs e)
+        {
+            colorPoints[0].X = tbPoint1X.Value;
         }
 
-        private void tbDirection_Scroll(object sender, EventArgs e)
+        private void tbPoint1Y_Scroll(object sender, EventArgs e)
         {
-            emitter.Direction = tbDirection.Value; // направлению эмиттера присваиваем значение ползунка
-            lblDirection.Text = $"{tbDirection.Value}°"; // добавил вывод значения
+            colorPoints[0].Y = tbPoint1Y.Value;
         }
 
-        private void tbGraviton_Scroll(object sender, EventArgs e)
+        private void tbPoint2X_Scroll(object sender, EventArgs e)
         {
-            point1.Power = tbGraviton.Value;
+            colorPoints[1].X = tbPoint2X.Value;
         }
 
-        private void tbGraviton2_Scroll(object sender, EventArgs e)
+        private void tbPoint2Y_Scroll(object sender, EventArgs e)
         {
-            point2.Power = tbGraviton2.Value;
+            colorPoints[1].Y = tbPoint2Y.Value;
         }
+
+        private void tbPoint3X_Scroll(object sender, EventArgs e)
+        {
+            colorPoints[2].X = tbPoint3X.Value;
+        }
+
+        private void tbPoint3Y_Scroll(object sender, EventArgs e)
+        {
+            colorPoints[2].Y = tbPoint3Y.Value;
+        }
+
+        private void tbPoint4X_Scroll(object sender, EventArgs e)
+        {
+            colorPoints[3].X = tbPoint4X.Value;
+        }
+
+        private void tbPoint4Y_Scroll(object sender, EventArgs e)
+        {
+            colorPoints[3].Y = tbPoint4Y.Value;
+        }
+
+        private void tbPoint5X_Scroll(object sender, EventArgs e)
+        {
+            colorPoints[4].X = tbPoint5X.Value;
+        }
+
+        private void tbPoint5Y_Scroll(object sender, EventArgs e)
+        {
+            colorPoints[4].Y = tbPoint5Y.Value;
+        }
+
+
+        private void tbPoint6X_Scroll(object sender, EventArgs e)
+        {
+            colorPoints[5].X = tbPoint6X.Value;
+        }
+
+        private void tbPoint6Y_Scroll(object sender, EventArgs e)
+        {
+            colorPoints[5].Y = tbPoint6Y.Value;
+        }
+
+        private void tbPoint7X_Scroll(object sender, EventArgs e)
+        {
+            colorPoints[6].X = tbPoint7X.Value;
+        }
+
+        private void tbPoint7Y_Scroll(object sender, EventArgs e)
+        {
+            colorPoints[6].Y = tbPoint7Y.Value;
+        }
+
+
     }
 }

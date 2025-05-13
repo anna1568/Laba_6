@@ -68,6 +68,7 @@ namespace Laba_6
                 size.Height
             );
 
+
             // ну и текст рисую уже на базе переменных
             g.DrawString(
                 text,
